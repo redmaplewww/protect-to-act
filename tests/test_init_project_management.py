@@ -151,6 +151,29 @@ class InitializeProjectManagementTests(unittest.TestCase):
             with self.assertRaisesRegex(OSError, "管理路径"):
                 module.initialize(root)
 
+    @unittest.skipUnless(os.name == "nt", "Windows junction regression")
+    def test_rejects_management_directory_junction_without_writing_outside(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            project_root = root / "project"
+            outside = root / "outside"
+            project_root.mkdir()
+            outside.mkdir()
+            junction = project_root / ".protect-to-act"
+            result = subprocess.run(
+                ["cmd.exe", "/d", "/c", "mklink", "/J", str(junction), str(outside)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+
+            with self.assertRaisesRegex(OSError, "重解析点"):
+                module.initialize(project_root)
+
+            self.assertEqual(list(outside.iterdir()), [])
+
     def test_rejects_directory_at_template_destination(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as temp_dir:

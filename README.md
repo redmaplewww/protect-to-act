@@ -127,6 +127,8 @@ python (Join-Path $codexHome "skills\protect-to-act\scripts\init_project_managem
 
 ## 验证
 
+开发和运行仓库测试需要 Python 3.10 或更高版本。初始化脚本本身只依赖 Python 标准库，可继续保持更广泛的运行时兼容性。
+
 ```powershell
 $env:PYTHONUTF8='1'
 python -m unittest discover -s tests -v

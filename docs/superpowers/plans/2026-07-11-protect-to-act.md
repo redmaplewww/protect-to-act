@@ -75,7 +75,7 @@ Expected: FAIL，原因是 `init_project_management.py` 尚不存在。
 
 Run: `python -m unittest discover -s repo/tests -v`
 
-Expected: 16 tests PASS，无警告或跳过。
+Expected: Windows 上 17 tests PASS，无警告或跳过；非 Windows 平台仅跳过 junction 专用回归测试。
 
 ### Task 3: Skill 主协议与元数据
 
