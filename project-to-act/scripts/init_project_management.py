@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""安全初始化项目的 .protect-to-act 管理目录。"""
+"""安全初始化项目的 .project-to-act 管理目录。"""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def initialize(project_root: Path) -> dict[str, list[str]]:
         with source.open("rb") as source_file:
             templates.append((filename, source_file.read()))
 
-    management_dir = project_root / ".protect-to-act"
+    management_dir = project_root / ".project-to-act"
     _reject_link_or_reparse_point(management_dir, "管理路径")
     if management_dir.exists() and not management_dir.is_dir():
         raise OSError(f"管理路径不是目录：{management_dir}")
@@ -101,7 +101,7 @@ def initialize(project_root: Path) -> dict[str, list[str]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="初始化 .protect-to-act 项目管理文档，不覆盖已有文件。")
+    parser = argparse.ArgumentParser(description="初始化 .project-to-act 项目管理文档，不覆盖已有文件。")
     parser.add_argument(
         "--project-root",
         type=Path,

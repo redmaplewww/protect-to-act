@@ -1,18 +1,18 @@
-# Protect to Act Skill 设计
+# Project to Act Skill 设计
 
 日期：2026-07-11  
 状态：已确认
 
 ## 目标
 
-创建并全局安装中文项目管理 Skill `protect-to-act`。该 Skill 在项目根目录建立 `.protect-to-act/`，让 AI 在工作前确认项目路线、工作中维护状态、完成前核对验收要求，同时通过索引和条件读取控制 Token 消耗。
+创建并全局安装中文项目管理 Skill `project-to-act`。该 Skill 在项目根目录建立 `.project-to-act/`，让 AI 在工作前确认项目路线、工作中维护状态、完成前核对验收要求，同时通过索引和条件读取控制 Token 消耗。
 
 ## 安装与可移植性
 
-- 全局安装位置：`$CODEX_HOME/skills/protect-to-act`；未设置 `CODEX_HOME` 时使用 `~/.codex/skills/protect-to-act`。
+- 全局安装位置：`$CODEX_HOME/skills/project-to-act`；未设置 `CODEX_HOME` 时使用 `~/.codex/skills/project-to-act`。
 - Skill 不写死本机路径。
 - Skill 自包含中文模板与初始化工具，便于后续复制或分享。
-- 创建公开 GitHub 仓库 `redmaplewww/protect-to-act` 并推送交付内容。
+- 创建公开 GitHub 仓库 `redmaplewww/project-to-act` 并推送交付内容。
 - 仓库根目录提供中文 `README.md`，说明用途、安装、触发场景、目录结构和使用示例。
 
 ## 项目管理目录
@@ -20,7 +20,7 @@
 启用后，在项目根目录创建：
 
 ```text
-.protect-to-act/
+.project-to-act/
 ├── PROJECT_OVERVIEW.md
 ├── PROJECT_PROGRESS.md
 ├── PROJECT_VERSIONS.md
@@ -41,7 +41,7 @@
 ### 初始化
 
 1. 确定项目根目录，优先使用版本库根目录；没有版本库时使用当前工作目录。
-2. 如果 `.protect-to-act/` 不存在，则创建目录与五份模板。
+2. 如果 `.project-to-act/` 不存在，则创建目录与五份模板。
 3. 如果目录已存在，只补齐缺失文件，不覆盖已有内容。
 
 ### 读取
@@ -77,7 +77,7 @@
 ## Skill 结构
 
 ```text
-protect-to-act/
+project-to-act/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
@@ -97,15 +97,15 @@ protect-to-act/
 ## GitHub 仓库结构
 
 ```text
-protect-to-act-repository/
+project-to-act-repository/
 ├── README.md
 ├── docs/
-│   └── protect-to-act-design.md
-└── protect-to-act/
+│   └── project-to-act-design.md
+└── project-to-act/
     └── （完整 Skill）
 ```
 
-`README.md` 属于分享仓库，不放入 `protect-to-act/` Skill 目录，避免给运行时 Skill 增加无关文件。README 使用中文，提供通过仓库复制安装的说明，并明确默认在项目根目录创建 `.protect-to-act/`。
+`README.md` 属于分享仓库，不放入 `project-to-act/` Skill 目录，避免给运行时 Skill 增加无关文件。README 使用中文，提供通过仓库复制安装的说明，并明确默认在项目根目录创建 `.project-to-act/`。
 
 ## 错误处理
 

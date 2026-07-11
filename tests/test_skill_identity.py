@@ -1,0 +1,37 @@
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = REPO_ROOT / "project-to-act"
+LEGACY_SLUG = "protect" + "-to-act"
+LEGACY_TITLE = "Protect" + " to Act"
+
+
+class SkillIdentityTests(unittest.TestCase):
+    def test_skill_folder_and_metadata_use_project_to_act(self):
+        self.assertTrue((SKILL_ROOT / "SKILL.md").is_file())
+        skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        metadata_text = (SKILL_ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("name: project-to-act", skill_text)
+        self.assertIn("# Project to Act", skill_text)
+        self.assertIn('display_name: "Project to Act"', metadata_text)
+        self.assertIn("$project-to-act", metadata_text)
+
+    def test_distribution_contains_no_legacy_name(self):
+        candidates = [
+            path
+            for path in REPO_ROOT.rglob("*")
+            if path.is_file()
+            and ".git" not in path.parts
+            and path.suffix.lower() in {".md", ".yaml", ".py"}
+        ]
+        for path in candidates:
+            text = path.read_text(encoding="utf-8")
+            self.assertNotIn(LEGACY_SLUG, text, str(path))
+            self.assertNotIn(LEGACY_TITLE, text, str(path))
+
+
+if __name__ == "__main__":
+    unittest.main()

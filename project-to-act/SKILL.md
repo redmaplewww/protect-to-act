@@ -1,18 +1,18 @@
 ---
-name: protect-to-act
+name: project-to-act
 description: Use when an AI starts, plans, implements, tracks, changes scope, releases, tests, accepts, or completes project work that needs durable Markdown context, project progress, version history, feature status, acceptance criteria, route protection, or token-efficient retrieval.
 ---
 
-# Protect to Act
+# Project to Act
 
 ## 核心契约
 
-把 `.protect-to-act/` 作为项目路线的持久参考。每次会话只以总览为入口；任务条件决定是否扩读。当前用户的明确指令优先，但不得静默改写既有路线或伪造完成证据。
+把 `.project-to-act/` 作为项目路线的持久参考。每次会话只以总览为入口；任务条件决定是否扩读。当前用户的明确指令优先，但不得静默改写既有路线或伪造完成证据。
 
 ## 初始化
 
 1. 优先用 Git 仓库根目录；无仓库时用当前工作目录，并说明该选择。
-2. 若 `.protect-to-act/` 不存在或文件不齐，运行本 Skill 的 `scripts/init_project_management.py --project-root <项目根目录>`。脚本只补缺，不覆盖。
+2. 若 `.project-to-act/` 不存在或文件不齐，运行本 Skill 的 `scripts/init_project_management.py --project-root <项目根目录>`。脚本只补缺，不覆盖。
 3. 首次使用时根据现有代码、文档和用户确认填写真实内容；未知项保持未定义，不猜测。
 
 ## 会话工作流

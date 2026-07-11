@@ -1,6 +1,6 @@
-# Protect to Act
+# Project to Act
 
-`protect-to-act` 是一个面向 AI 编程代理的中文项目管理 Skill。它在项目中维护一组可追溯的 Markdown 文件，让 AI 在实施前核对路线、工作中同步状态、完成前检查验收证据，同时通过条件读取减少不必要的 Token 消耗。
+`project-to-act` 是一个面向 AI 编程代理的中文项目管理 Skill。它在项目中维护一组可追溯的 Markdown 文件，让 AI 在实施前核对路线、工作中同步状态、完成前检查验收证据，同时通过条件读取减少不必要的 Token 消耗。
 
 ## 核心价值
 
@@ -15,7 +15,7 @@
 启用后，Skill 在项目根目录创建：
 
 ```text
-.protect-to-act/
+.project-to-act/
 ├── PROJECT_OVERVIEW.md
 ├── PROJECT_PROGRESS.md
 ├── PROJECT_VERSIONS.md
@@ -36,15 +36,15 @@
 ### 通过 Git 克隆
 
 ```powershell
-git clone https://github.com/redmaplewww/protect-to-act.git
-$source = (Resolve-Path -LiteralPath ".\protect-to-act\protect-to-act").Path
+git clone https://github.com/redmaplewww/project-to-act.git
+$source = (Resolve-Path -LiteralPath ".\project-to-act\project-to-act").Path
 $codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
     Join-Path $HOME ".codex"
 } else {
     $env:CODEX_HOME
 }
 $skillsDirectory = Join-Path $codexHome "skills"
-$destination = Join-Path $skillsDirectory "protect-to-act"
+$destination = Join-Path $skillsDirectory "project-to-act"
 
 if ($null -ne (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
     throw "安装目标已存在，拒绝覆盖：$destination"
@@ -58,26 +58,26 @@ if (-not (Test-Path -LiteralPath (Join-Path $destination "SKILL.md") -PathType L
 }
 ```
 
-命令会优先使用 `CODEX_HOME`；未设置时回退到 `~/.codex`。它先独占创建最终目录，再复制目录内容，因此不会把 Skill 嵌套成 `protect-to-act/protect-to-act`。目标已存在时命令会拒绝继续；请先自行备份或移走旧安装，不要使用 `-Force` 覆盖。
+命令会优先使用 `CODEX_HOME`；未设置时回退到 `~/.codex`。它先独占创建最终目录，再复制目录内容，因此不会把 Skill 嵌套成 `project-to-act/project-to-act`。目标已存在时命令会拒绝继续；请先自行备份或移走旧安装，不要使用 `-Force` 覆盖。
 
 复制后重新打开 Codex，让全局 Skill 被重新发现。
 
 ### 手动安装
 
-下载仓库后，将仓库中的 `protect-to-act/` 文件夹内容复制到以下目标。仍需遵守上面的新安装流程：目标必须不存在，并先创建目标目录再复制其内容。
+下载仓库后，将仓库中的 `project-to-act/` 文件夹内容复制到以下目标。仍需遵守上面的新安装流程：目标必须不存在，并先创建目标目录再复制其内容。
 
 ```text
-$CODEX_HOME/skills/protect-to-act/
+$CODEX_HOME/skills/project-to-act/
 ```
 
-未设置 `CODEX_HOME` 时，目标为 `~/.codex/skills/protect-to-act/`。
+未设置 `CODEX_HOME` 时，目标为 `~/.codex/skills/project-to-act/`。
 
 ## 使用
 
 显式调用示例：
 
 ```text
-使用 $protect-to-act 初始化并维护当前项目的管理文档。
+使用 $project-to-act 初始化并维护当前项目的管理文档。
 ```
 
 也可以直接提出项目规划、功能开发、版本发布、验收或进度维护请求；当任务符合 Skill 描述时，Codex 可以自动加载它。
@@ -86,7 +86,7 @@ $CODEX_HOME/skills/protect-to-act/
 
 ```powershell
 $codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
-python (Join-Path $codexHome "skills\protect-to-act\scripts\init_project_management.py") --project-root "D:\path\to\project"
+python (Join-Path $codexHome "skills\project-to-act\scripts\init_project_management.py") --project-root "D:\path\to\project"
 ```
 
 脚本返回创建与跳过的文件列表。重复运行不会覆盖已有文件。
@@ -117,7 +117,7 @@ python (Join-Path $codexHome "skills\protect-to-act\scripts\init_project_managem
 .
 ├── README.md
 ├── docs/
-├── protect-to-act/
+├── project-to-act/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
 │   ├── scripts/init_project_management.py
@@ -133,7 +133,7 @@ python (Join-Path $codexHome "skills\protect-to-act\scripts\init_project_managem
 $env:PYTHONUTF8='1'
 python -m unittest discover -s tests -v
 $codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
-python (Join-Path $codexHome "skills\.system\skill-creator\scripts\quick_validate.py") .\protect-to-act
+python (Join-Path $codexHome "skills\.system\skill-creator\scripts\quick_validate.py") .\project-to-act
 ```
 
 ## 许可证
