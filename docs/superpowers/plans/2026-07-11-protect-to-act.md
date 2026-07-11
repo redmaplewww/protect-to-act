@@ -167,7 +167,7 @@ Run: `git -C repo commit -m "feat: add protect-to-act project management skill"`
 
 Expected: 工作树干净，提交包含 README、设计、计划、Skill 与测试。
 
-- [ ] **Step 5: 创建公开仓库并推送**
+- [x] **Step 5: 创建公开仓库并推送**
 
 Run: `gh repo create redmaplewww/protect-to-act --public --source repo --remote origin --push --description "中文 AI 项目管理 Skill：按需读取项目文档，保护项目路线并持续维护状态"`
 
