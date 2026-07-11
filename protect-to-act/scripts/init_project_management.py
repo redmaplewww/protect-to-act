@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import shutil
 from pathlib import Path
@@ -27,19 +28,55 @@ def initialize(project_root: Path) -> dict[str, list[str]]:
         raise ValueError(f"项目根路径不是目录：{project_root}")
 
     template_dir = Path(__file__).resolve().parent.parent / "assets" / "templates"
-    management_dir = project_root / ".protect-to-act"
-    management_dir.mkdir(parents=True, exist_ok=True)
-
-    report: dict[str, list[str]] = {"created": [], "skipped": []}
+    templates: list[tuple[str, bytes]] = []
     for filename in TEMPLATE_NAMES:
         source = template_dir / filename
-        if not source.is_file():
-            raise FileNotFoundError(f"缺少 Skill 模板：{source}")
+        if source.is_symlink() or not source.is_file():
+            raise FileNotFoundError(f"缺少或不是常规文件的 Skill 模板：{source}")
+        with source.open("rb") as source_file:
+            templates.append((filename, source_file.read()))
+
+    management_dir = project_root / ".protect-to-act"
+    if management_dir.is_symlink():
+        raise OSError(f"管理路径不得是符号链接：{management_dir}")
+    if management_dir.exists() and not management_dir.is_dir():
+        raise OSError(f"管理路径不是目录：{management_dir}")
+    try:
+        management_dir.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        if management_dir.is_symlink() or not management_dir.is_dir():
+            raise OSError(f"管理路径不是安全的目录：{management_dir}")
+
+    report: dict[str, list[str]] = {"created": [], "skipped": []}
+    for filename, template_content in templates:
         destination = management_dir / filename
+        if destination.is_symlink():
+            raise OSError(f"目标路径不得是符号链接：{destination}")
         if destination.exists():
+            if not destination.is_file():
+                raise OSError(f"目标路径不是常规文件：{destination}")
             report["skipped"].append(filename)
             continue
-        shutil.copyfile(source, destination)
+
+        try:
+            destination_file = destination.open("xb")
+        except FileExistsError:
+            if destination.is_symlink():
+                raise OSError(f"并发创建的目标路径是符号链接：{destination}")
+            if not destination.is_file():
+                raise OSError(f"并发创建的目标路径不是常规文件：{destination}")
+            report["skipped"].append(filename)
+            continue
+
+        try:
+            with destination_file:
+                shutil.copyfileobj(io.BytesIO(template_content), destination_file)
+        except BaseException:
+            try:
+                destination.unlink()
+            except FileNotFoundError:
+                pass
+            raise
         report["created"].append(filename)
     return report
 

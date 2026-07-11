@@ -37,18 +37,40 @@
 
 ```powershell
 git clone https://github.com/redmaplewww/protect-to-act.git
-Copy-Item -Recurse -Force .\protect-to-act\protect-to-act "$HOME\.codex\skills\protect-to-act"
+$source = (Resolve-Path -LiteralPath ".\protect-to-act\protect-to-act").Path
+$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+    Join-Path $HOME ".codex"
+} else {
+    $env:CODEX_HOME
+}
+$skillsDirectory = Join-Path $codexHome "skills"
+$destination = Join-Path $skillsDirectory "protect-to-act"
+
+if ($null -ne (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    throw "安装目标已存在，拒绝覆盖：$destination"
+}
+New-Item -ItemType Directory -Path $skillsDirectory -Force | Out-Null
+New-Item -ItemType Directory -Path $destination -ErrorAction Stop | Out-Null
+Get-ChildItem -LiteralPath $source -Force | Copy-Item -Destination $destination -Recurse -ErrorAction Stop
+
+if (-not (Test-Path -LiteralPath (Join-Path $destination "SKILL.md") -PathType Leaf)) {
+    throw "安装校验失败：目标中没有 SKILL.md"
+}
 ```
+
+命令会优先使用 `CODEX_HOME`；未设置时回退到 `~/.codex`。它先独占创建最终目录，再复制目录内容，因此不会把 Skill 嵌套成 `protect-to-act/protect-to-act`。目标已存在时命令会拒绝继续；请先自行备份或移走旧安装，不要使用 `-Force` 覆盖。
 
 复制后重新打开 Codex，让全局 Skill 被重新发现。
 
 ### 手动安装
 
-下载仓库后，将仓库中的 `protect-to-act/` 文件夹复制到：
+下载仓库后，将仓库中的 `protect-to-act/` 文件夹内容复制到以下目标。仍需遵守上面的新安装流程：目标必须不存在，并先创建目标目录再复制其内容。
 
 ```text
-~/.codex/skills/protect-to-act/
+$CODEX_HOME/skills/protect-to-act/
 ```
+
+未设置 `CODEX_HOME` 时，目标为 `~/.codex/skills/protect-to-act/`。
 
 ## 使用
 
@@ -63,7 +85,8 @@ Copy-Item -Recurse -Force .\protect-to-act\protect-to-act "$HOME\.codex\skills\p
 初始化脚本可单独运行：
 
 ```powershell
-python "$HOME\.codex\skills\protect-to-act\scripts\init_project_management.py" --project-root "D:\path\to\project"
+$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
+python (Join-Path $codexHome "skills\protect-to-act\scripts\init_project_management.py") --project-root "D:\path\to\project"
 ```
 
 脚本返回创建与跳过的文件列表。重复运行不会覆盖已有文件。
@@ -105,9 +128,10 @@ python "$HOME\.codex\skills\protect-to-act\scripts\init_project_management.py" -
 ## 验证
 
 ```powershell
-python -m unittest discover -s tests -v
 $env:PYTHONUTF8='1'
-python "$HOME\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .\protect-to-act
+python -m unittest discover -s tests -v
+$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
+python (Join-Path $codexHome "skills\.system\skill-creator\scripts\quick_validate.py") .\protect-to-act
 ```
 
 ## 许可证
