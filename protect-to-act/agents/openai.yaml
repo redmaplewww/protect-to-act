@@ -1,0 +1,4 @@
+interface:
+  display_name: "Protect to Act"
+  short_description: "使用项目管理文档保护AI工作路线并按需读取和持续维护项目状态"
+  default_prompt: "使用 $protect-to-act 初始化并维护当前项目的管理文档。"
