@@ -37,7 +37,8 @@ def run_cli(
     *extra_args: str,
 ) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
-    environment["PYTHONUTF8"] = "1"
+    environment.pop("PYTHONUTF8", None)
+    environment["PYTHONIOENCODING"] = "utf-8"
     return subprocess.run(
         [
             sys.executable,
@@ -530,7 +531,8 @@ class InitializerCliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             environment = os.environ.copy()
-            environment["PYTHONUTF8"] = "1"
+            environment.pop("PYTHONUTF8", None)
+            environment["PYTHONIOENCODING"] = "utf-8"
             command = [sys.executable, str(SCRIPT_PATH), "--project-root", str(root)]
             processes = [
                 subprocess.Popen(

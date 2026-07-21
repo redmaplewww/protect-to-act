@@ -110,9 +110,9 @@ Managed 模式每次只从总览开始，再按任务读取进度、功能、版
 初始化脚本只依赖 Python 3.10+ 标准库。
 
 ```powershell
-$env:PYTHONUTF8='1'
+$env:PYTHONIOENCODING='utf-8'
 python -m unittest discover -s tests -v
-python $HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py ./project-to-act
+python -X utf8 $HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py ./project-to-act
 ```
 
 ## 仓库结构
