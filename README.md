@@ -1,21 +1,24 @@
 # Project to Act
 
-`project-to-act` 是一个面向 AI 编程代理的中文项目管理 Skill。它在项目中维护一组可追溯的 Markdown 文件，让 AI 在实施前核对路线、工作中同步状态、完成前检查验收证据，同时通过条件读取减少不必要的 Token 消耗。
+`project-to-act` 是面向 AI 编程代理的中文项目治理 Skill。它维护唯一项目事实源，让 AI 在实施前核对路线、工作中同步状态、完成前检查验收证据，并通过条件读取控制上下文消耗。
 
-## 核心价值
+## 核心能力
 
-- 路线保护：识别请求与项目目标、范围、非目标或验收标准的冲突。
-- 持久上下文：把项目进度、版本、功能和验收状态保存在项目内。
-- 按需读取：每次会话只读总览，再根据任务类型打开相关文件。
-- 安全维护：只补齐缺失模板，不覆盖已有项目记录。
-- 证据优先：没有测试或验收证据时，不把项目写成已完成。
+- 先发现再配置：先检查已有账本，不因 Skill 被加载就自动写文件。
+- 唯一事实源：支持内置五文档和采用现有项目账本两种模式，拒绝并行维护两套状态。
+- 路线与验收保护：范围冲突先确认，没有新鲜证据不声明完成。
+- 数据安全：项目文档按不可信数据处理，证据不保存密钥、完整个人信息或原始顾客对话。
+- 生命周期：支持 dry-run、旧版迁移、结构验证和并发安全创建。
 
-## 项目文件
+## 两种模式
 
-启用后，Skill 在项目根目录创建：
+### Managed
+
+适用于没有项目账本的新项目：
 
 ```text
 .project-to-act/
+├── PROJECT_CONFIG.json
 ├── PROJECT_OVERVIEW.md
 ├── PROJECT_PROGRESS.md
 ├── PROJECT_VERSIONS.md
@@ -23,93 +26,94 @@
 └── PROJECT_ACCEPTANCE.md
 ```
 
-| 文件 | 用途 |
-|---|---|
-| `PROJECT_OVERVIEW.md` | 目标、范围、非目标、路线、约束与读取索引 |
-| `PROJECT_PROGRESS.md` | 当前任务、阻塞、下一步与进度证据 |
-| `PROJECT_VERSIONS.md` | 当前版本、发布状态、兼容性与版本历史 |
-| `PROJECT_FEATURES.md` | 功能清单、优先级、状态、依赖与完成条件 |
-| `PROJECT_ACCEPTANCE.md` | 验收标准、检查结果、证据与最终结论 |
+### External ledger
+
+适用于已有 `PROJECT_LEDGER.md`、`AGENT_PROJECT.md` 或 `docs/project-ledger.md` 的项目。`.project-to-act/` 只保存一个配置文件，指向原账本，不复制或分叉项目状态。
 
 ## 安装
 
-### 通过 Git 克隆
+使用 Codex 的 skill 安装器：
 
-```powershell
-git clone https://github.com/redmaplewww/project-to-act.git
-$source = (Resolve-Path -LiteralPath ".\project-to-act\project-to-act").Path
-$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
-    Join-Path $HOME ".codex"
-} else {
-    $env:CODEX_HOME
-}
-$skillsDirectory = Join-Path $codexHome "skills"
-$destination = Join-Path $skillsDirectory "project-to-act"
-
-if ($null -ne (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
-    throw "安装目标已存在，拒绝覆盖：$destination"
-}
-New-Item -ItemType Directory -Path $skillsDirectory -Force | Out-Null
-New-Item -ItemType Directory -Path $destination -ErrorAction Stop | Out-Null
-Get-ChildItem -LiteralPath $source -Force | Copy-Item -Destination $destination -Recurse -ErrorAction Stop
-
-if (-not (Test-Path -LiteralPath (Join-Path $destination "SKILL.md") -PathType Leaf)) {
-    throw "安装校验失败：目标中没有 SKILL.md"
-}
+```text
+从 GitHub 仓库 redmaplewww/project-to-act 安装 project-to-act/ skill。
 ```
 
-命令会优先使用 `CODEX_HOME`；未设置时回退到 `~/.codex`。它先独占创建最终目录，再复制目录内容，因此不会把 Skill 嵌套成 `project-to-act/project-to-act`。目标已存在时命令会拒绝继续；请先自行备份或移走旧安装，不要使用 `-Force` 覆盖。
-
-复制后重新打开 Codex，让全局 Skill 被重新发现。
-
-### 手动安装
-
-下载仓库后，将仓库中的 `project-to-act/` 文件夹内容复制到以下目标。仍需遵守上面的新安装流程：目标必须不存在，并先创建目标目录再复制其内容。
+或将仓库中的 `project-to-act/` 内容安装到：
 
 ```text
 $CODEX_HOME/skills/project-to-act/
 ```
 
-未设置 `CODEX_HOME` 时，目标为 `~/.codex/skills/project-to-act/`。
+未设置 `CODEX_HOME` 时使用 `~/.codex/skills/project-to-act/`。更新安装时先备份旧目录；不要把仓库根级 README 和测试复制进运行时 skill 目录。
 
 ## 使用
 
-显式调用示例：
+显式调用：
 
 ```text
-使用 $project-to-act 初始化并维护当前项目的管理文档。
+使用 $project-to-act 检查当前项目的既有账本，并安全采用或维护唯一事实源。
 ```
 
-也可以直接提出项目规划、功能开发、版本发布、验收或进度维护请求；当任务符合 Skill 描述时，Codex 可以自动加载它。
+下面命令中的 `<skill>` 指已安装的 `project-to-act` 目录，`<project>` 必须是明确的项目根目录。
 
-初始化脚本可单独运行：
+### 只读检查
 
 ```powershell
-$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
-python (Join-Path $codexHome "skills\project-to-act\scripts\init_project_management.py") --project-root "D:\path\to\project"
+python <skill>/scripts/init_project_management.py --project-root <project> --check
 ```
 
-脚本返回创建与跳过的文件列表。重复运行不会覆盖已有文件。
+### 新项目初始化
 
-## 按需读取规则
+```powershell
+python <skill>/scripts/init_project_management.py --project-root <project> --dry-run
+python <skill>/scripts/init_project_management.py --project-root <project>
+```
 
-| 任务 | 读取范围 |
-|---|---|
-| 每次新会话 | 只读总览 |
-| 规划、实施、阻塞处理 | 总览 + 进度 |
-| 功能变化 | 总览 + 功能；实施时加进度 |
-| 版本或发布变化 | 总览 + 版本 |
-| 测试、交付或完成声明 | 总览 + 验收 |
-| 跨领域路线变更 | 全部文件做一致性审计 |
+如果发现已有账本，默认初始化会失败，防止产生第二事实源。
 
-文件较长时，AI 会先搜索标题、状态、功能名或版本号，再读取命中段落，而不是默认加载全文。
+### 采用已有账本
 
-## 安全更新原则
+```powershell
+python <skill>/scripts/init_project_management.py --project-root <project> --adopt-ledger docs/project-ledger.md --dry-run
+python <skill>/scripts/init_project_management.py --project-root <project> --adopt-ledger docs/project-ledger.md
+```
 
-- 目标、范围、功能、阻塞、版本或验收结果发生实际变化后才更新。
-- 历史区追加带日期的变化、原因和证据，不覆盖旧决定。
-- 当前请求与既有路线冲突时，先说明影响并等待用户确认。
-- 写入失败、测试跳过或验收不通过时，如实报告，不声称成功。
+### 迁移旧版五文档目录
+
+```powershell
+python <skill>/scripts/init_project_management.py --project-root <project> --migrate --dry-run
+python <skill>/scripts/init_project_management.py --project-root <project> --migrate
+```
+
+迁移只补 `PROJECT_CONFIG.json` 和缺失模板，不覆盖已有管理内容。
+
+如果旧路径仍被 README 或工具引用，可把它改成只含下列首行标记和跳转说明的兼容页；检查器会验证目标位于 `.project-to-act/` 后忽略该旧路径，不再把它判定为第二账本：
+
+```text
+<!-- project-to-act-redirect: .project-to-act/PROJECT_OVERVIEW.md -->
+```
+
+### 验证
+
+```powershell
+python <skill>/scripts/init_project_management.py --project-root <project> --validate
+```
+
+所有 CLI 成功结果输出 UTF-8 JSON，失败返回非零退出码。
+
+## 读取规则
+
+Managed 模式每次只从总览开始，再按任务读取进度、功能、版本或验收文件。External-ledger 模式先搜索规范账本中的目标和当前状态，再按任务搜索相关标题；仅在一致性审计时读取全文。
+
+## 开发验证
+
+初始化脚本只依赖 Python 3.10+ 标准库。
+
+```powershell
+$env:PYTHONUTF8='1'
+python -m unittest discover -s tests -v
+python $HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py ./project-to-act
+```
 
 ## 仓库结构
 
@@ -125,17 +129,6 @@ python (Join-Path $codexHome "skills\project-to-act\scripts\init_project_managem
 └── tests/
 ```
 
-## 验证
-
-开发和运行仓库测试需要 Python 3.10 或更高版本。初始化脚本本身只依赖 Python 标准库，可继续保持更广泛的运行时兼容性。
-
-```powershell
-$env:PYTHONUTF8='1'
-python -m unittest discover -s tests -v
-$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $HOME ".codex" } else { $env:CODEX_HOME }
-python (Join-Path $codexHome "skills\.system\skill-creator\scripts\quick_validate.py") .\project-to-act
-```
-
 ## 许可证
 
-当前仓库尚未指定开源许可证。公开仓库可供查看和评估；如需正式再分发，请由仓库所有者补充许可证。
+当前仓库尚未指定开源许可证。公开仓库可供查看和评估；正式再分发前请补充许可证。

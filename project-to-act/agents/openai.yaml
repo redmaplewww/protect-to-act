@@ -1,4 +1,4 @@
 interface:
   display_name: "Project to Act"
-  short_description: "使用项目管理文档保护AI工作路线并按需读取和持续维护项目状态"
-  default_prompt: "使用 $project-to-act 初始化并维护当前项目的管理文档。"
+  short_description: "发现并维护唯一项目账本，保护路线、证据与验收状态"
+  default_prompt: "使用 $project-to-act 检查当前项目的既有账本，并安全采用或维护唯一事实源。"
